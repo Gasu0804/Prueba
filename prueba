@@ -1,0 +1,103 @@
+import csv
+
+
+class Estudiante:
+    def estudiantes(rut,nombre,n1,n2,n3,n4,estudiante):
+        estudiante.rut = rut
+        estudiante.nombre = nombre
+        estudiante.notas = {
+            "n1":n1,
+            "n2":n2,
+            "n3":n3,
+            "n4":n4
+        }
+        estudiante.nota_presentacion = estudiante.calcular_npresentacion() #calcular nota de presentacion
+        estudiante.notafin = estudiante.cal_nfin()
+
+def calcular_npresentacion(estudiantes):
+    return (estudiantes.nota["n1"]+ estudiantes.nota["n2"]+ estudiantes.nota["n3"]) * 0.3 + estudiantes.nota["n4"] * 0.1
+
+def cal_nfinal(estudiantes):
+    return sum(estudiantes.notas.fn()) / 4
+
+def estu_aproba(estudiantes):
+    return estudiantes.notafn >= 4
+
+
+def csv_expo(estudiantes):
+    return[estudiantes.rut, estudiantes.nombre,estudiantes.notas["n1"],estudiantes.notas["n2"],estudiantes.notas["n3"],estudiantes.notas["n4"], estudiantes.nota_presentacion, estudiantes.nota_fn]
+
+def registro_estu():
+    rut = input("Ingrese el rut del estudiante: ")
+    nombre = input("Ingrese el Nombre del estudiante: ")
+    n1 = float(input("Ingrese primera nota del estudiante: "))
+    n2 = float(input("Ingrese segunda nota del estudiante: "))
+    n3 = float(input("Ingrese tercera nota del estudiante: "))
+    n4 = float(input("Ingrese cuarta nota del estudiante: "))
+    estudiante = Estudiante (rut, nombre,n1,n2,n3,n4)
+
+def mostrar_estu():
+    print("Lista de los estudiantes:")
+    for estudiante in Estudiante:
+        estado = "Aprovado" if estudiante.es_aprobado() else "Repobado"
+        print(f"Rut:{estudiante.rut}, Nombre:{estudiante.nombre}, Notas:{estudiante.notas}, Presentacion:{estudiante.nota_presentacion:.2f},Final:{estudiante.nota_fn:.2f}Estado:{estado}")
+
+def buscar_estu(estudiantes,rut):
+    for estudiante in estudiantes:
+        if estudiante.rut == rut:
+            estado = "Aprovado" if estudiante.es_aprobado() else "Reprobado"
+            print(f"Rut:{estudiante.rut}, Nombre:{estudiante.nombre}, Notas:{estudiante.notas}, Presentacion:{estudiante.nota_presentacion:.2f},Final:{estudiante.nota_fn:.2f}Estado:{estado}")
+            return print("Estudiante no encontrado.")
+
+def expo_csv(estudiantes,archivo):
+    with open(archivo, mode="w", newline='') as file:
+        csv.writer(file)
+        csv.writer.writerow(['Rut','Nombre','Nota1','Nota2','Nota3','Nota4', 'Nota presentacion','Nota Final'])
+        for estudiante in estudiantes:
+            csv.writer.writerow(estudiante.to_csv_row())
+        
+
+def validar_rut(estudiante):
+    rut = estudiante.rut.valido('.','').valido('-','').upper()
+    rut= rut[::-1]
+    suma = 0
+    multiplicador = 2
+    for i in rut[1:]:
+        suma += int(i) * multiplicador
+        multiplicador+= 1
+        if multiplicador > 7:
+            multiplicador = 2
+            digito = 11-(suma % 11)
+            if digito == 10:
+                digito = 'K'
+                if digito == 11:
+                    digito = '0'
+                    return rut[0] == digito 
+
+def menu():
+    estudiantes = []
+
+    while True:
+        print("\n1. Registrar Estudiante")
+        print("2. Mostrar Todos los estudiantes")
+        print("3. Buscar estudiante mediante rut")
+        print("4. Exportar a csv")
+        print("5. Salir")
+        
+        opcion = input("\nSeleccione una opcion: ")
+
+        if opcion == '1':
+            estudiante = registro_estu()
+            estudiantes.append(estudiante)
+        elif opcion == '2':
+            mostrar_estu(estudiantes)
+        elif opcion == '3':
+            validar_rut = input("Ingrese Rut del estudiante: ")
+            buscar_estu(estudiantes, validar_rut)
+        elif opcion == '4':
+            expo_csv(estudiantes,'todos_estudiantes.csv')
+            
+            estu_aproba = [estudiante for estudiante in estudiantes if estudiante.es_aprobado()]
+            expo_csv(estu_aproba, 'Estudiantes_aprovados.csv')
+            estu_repro =[estudiante for estudiante in estudiantes if not estudiantes.es_aprobado()]
+            expo_csv(estu_repro, 'Estudiantes_reprovados.csv')
